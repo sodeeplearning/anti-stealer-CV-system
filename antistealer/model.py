@@ -8,7 +8,12 @@ from .config import model_name
 client = OpenAI(api_key=api_key)
 
 
-def model_request(images: list[bytes]) -> str:
+def model_request(images: list[str]) -> str:
+    """Make request to a ChatGPT model.
+
+    :param images: String-bytes of images frames.
+    :return: Model's response
+    """
     user_content = [{"type": "image", "image": current} for current in images]
     response = client.chat.completions.create(
         model=model_name,
