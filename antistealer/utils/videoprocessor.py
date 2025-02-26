@@ -1,11 +1,14 @@
 import io
 import cv2
 import base64
+from PIL import Image
+
+from ..config import default_max_fps
 
 
 def extract_frames(
         video_path: str,
-        max_fps: int = -1
+        max_fps: int = default_max_fps
 ) -> list[str]:
     """Get image frames from video.
 
@@ -22,7 +25,7 @@ def extract_frames(
     frame_interval = int(min(fps, max_fps))
 
     counter = 0
-    frame_base64 = []
+    frames = []
 
     while cap.isOpened():
         is_success, frame = cap.read()
@@ -31,11 +34,12 @@ def extract_frames(
             break
 
         if counter % frame_interval == 0:
-            _, buffer = cv2.imencode(".jpg", frame)
-            frame_bytes = io.BytesIO(buffer).getvalue()
-            frame_base64.append(base64.b64encode(frame_bytes).decode("utf-8"))
+            image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            buffered = io.BytesIO()
+            image.save(buffered, format="JPEG")
+            frames.append(base64.b64encode(buffered.getvalue()).decode("utf-8"))
         counter += 1
 
     cap.release()
 
-    return frame_base64
+    return frames

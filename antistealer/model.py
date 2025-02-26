@@ -14,12 +14,13 @@ def model_request(images: list[str]) -> str:
     :param images: String-bytes of images frames.
     :return: Model's response
     """
-    user_content = [{"type": "image", "image": current} for current in images]
+    user_content = [{"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{current}"}} for current in images]
     response = client.chat.completions.create(
         model=model_name,
         messages=[
             {"role": "system", "text": system_prompt},
             {"role": "user", "content": user_content}
-        ]
+        ],
+
     )
     return response["choices"][0]["message"]["content"]
